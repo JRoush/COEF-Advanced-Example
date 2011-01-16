@@ -1,16 +1,14 @@
-The 'COEF Advanced Example' plugin demonstrates the same concepts as the Basic example plugin:
--   "1 loader, 2 submodule" project structure
--   Loading ExportInjector to enable dynamic linking to Oblivion.exe & TESConstructionSet.exe
--   Loading a submodule and communicating with it via LoadLibrary() and GetProcAddress()
--   Separating the execution of script commands from the extraction & validation of arguments
--   The basic layout for DllMain() & CWinApp
--   Basic useage of the OutputLog utility
-However, the intermediate example also demonstrates:
--   Organizing the execution of script commands into a 'submodule interface', along with functions 
-    useful for communicating with the submodule.
--   Forwarding debugging output to the CSE console and parsing commands entered by the user
--   Segregating common or bulky code (script command definitions, plugin version info) into seperate files
--   Serializing plugin data to & from the OBSE cosave
+The 'COEF Advanced Example' plugin demonstrates the same concepts as the Basic and Intermediate example plugins.
+In addition, it illustrates:
+-   Loading & linking to the COEF Components library
+-   Implementation of a new Form type using the ExtendedForm component, including:
+    -   defining and registering an ExtendedForm object
+    -   Patching the vtbls to fill in the gaps where COEF has not yet defined methods
+    -   overriding the Copy, Compare, & GetFormType methods properly
+    -   overriding the LoadForm and SaveFormChunks methods to serialize the form
+    -   overriding the various dialog-related methods to implement a dialog interface in the CS
+-   Registering a listener event in the main CS window proc using the EventManager component
+-   Adding a menu item to the main CS window
 
 Requirements for Developers:
 ============================
@@ -21,16 +19,16 @@ Requirements for Developers:
 Setup Instructions for Developers:
 ==================================
 1.  Extract the archive to a working directory for development
-2.  Open COEF_Example.sln in a text editor and find the line beginning with
+2.  Open COEF_AdvancedExample.sln in a text editor and find the line beginning with
         Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "COEF"
     Enter the path (relative or absolute) to COEF.vcproj, found in your COEF directory
 3.  Open EnvPaths.vsprops in a text editor, and change the paths it contains:
         COEFPATH - the path (relative or absolute) of your COEF directory
         OBSEPATH - the path (relative or absolute) to the OBSE source code directory containing 'Common' and 'OBSE' subdirectories
         OBLIVIONPATH - the path to your Oblivion\ directory
-4.  (Optional) Rename COEF_Example.sln to the project name of your choice.  All internal strings (log file names, plugin name
+4.  (Optional) Rename COEF_AdvancedExample.sln to the project name of your choice.  All internal strings (log file names, plugin name
     provided to OBSE, etc). should automatically reflect whatever name you choose.
-5.  Navigate to your Oblivion\Data\OBSE\Plugins\ directory and create a new folder called COEF_Example, or whatever name you chose
+5.  Navigate to your Oblivion\Data\OBSE\Plugins\ directory and create a new folder called COEF_AdvancedExample, or whatever name you chose
     in step 4.  Copy the Settings.ini to this new folder from your working directory.
 6.  Open the solution in Visual Studio and begin development.  You may get an error the first time you compile the code;
     compile it at least twice before troubleshooting.
