@@ -1,8 +1,9 @@
 /*
     Main unit for OBME submodules.  Handles:
     -   Initialization (writing hooks & patches)
-    -   global debugging log
-    -   global OBME interface
+    -   global debugging log (linked to log in loader)
+    -   global Submodule interface
+    -   global module handle
 
     This example plugin has two submodule DLLs - one for the CS, and one for the game.  
     This is necessary because the game and CS use slightly different definitions for many COEF classes.
@@ -14,6 +15,7 @@
     configuration.  One will generate a 'CS' dll, and the other a 'Game' dll. 
 */
 #include "Submodule/Interface.h"
+#include "Submodule/MyForm.h"
 
 /*--------------------------------------------------------------------------------------------*/
 // global debugging log for the submodule
@@ -22,7 +24,9 @@ OutputLog& gLog = _gLog;
 
 /*--------------------------------------------------------------------------------------------*/
 // global submodule interface
-SubmoduleInterface  g_submoduleIntfc;   
+SubmoduleInterface  g_submoduleIntfc; 
+// module (or "instance") handle - necessary for accessing embedded resources, e.g. dialog templates
+HMODULE hModule = 0;
 
 /*--------------------------------------------------------------------------------------------*/
 // submodule initialization
@@ -31,7 +35,8 @@ extern "C" _declspec(dllexport) void* Initialize()
     // begin initialization  
     _MESSAGE("Initializing Submodule ..."); 
 
-    // ... Perform hooks & patches here
+    // Perform hooks & patches
+    MyForm::InitializeMyForm();
     
     // initialization complete
     _DMESSAGE("Submodule initialization completed sucessfully");
@@ -47,6 +52,7 @@ BOOL WINAPI DllMain(HANDLE hDllHandle, DWORD dwReason, LPVOID lpreserved)
     switch(dwReason)
     {
     case DLL_PROCESS_ATTACH:    // dll loaded
+        hModule = (HMODULE)hDllHandle;  // store module handle
         _MESSAGE("Attaching Submodule ..."); 
         break;
     case DLL_PROCESS_DETACH:    // dll unloaded
@@ -62,6 +68,7 @@ class CSubmoduleApp : public CWinApp
 public:
     virtual BOOL InitInstance()
     {// dll loaded       
+        hModule = m_hInstance;  // store module handle
         _MESSAGE("Attaching Submodule ..."); 
         return true;
     }

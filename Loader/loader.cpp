@@ -10,13 +10,13 @@
     -   A 'loader' dll, located in the OBSE/Plugins folder, which is loaded & processed by obse.
         The loader does the necessary version checks, registers obse interfaces & script commands, etc.
         It then loads ...
-        -   ExportInjector.dll, which the player should have installed in the OBSE/Plugins/COEF folder.
+        -   COEF/API/ExportInjector.dll, which the player should have installed in the OBSE/Plugins/COEF folder.
             ExportInjector finds *.eed files (hich the player should also have installed with COEF), and uses them to
             build a table of exported functions and data objects for the Game/CS.
-        Once ExportInjector is loaded (or if it's already been loaded by another plugin), then the loader loads a ...
-        -   Submodule DLL, located in some subdirectory of Oblivion/Data.  This submodule contains the actual 'guts' of
-            the plugin - all of the code that is based on COEF classes.  It exports a special named function, Initialize(),
-            which writes any hooks and patches needed by the plugin, and returns a ...
+        -   COEF/Components/Components.*.dll (where * is "Game" or "CS"), which contains shared COEF code.
+        -   A Submodule DLL, located in some subdirectory of Oblivion/Data.  This submodule contains the actual 'guts' of
+            the plugin - all of the code that is based on COEF classes and components.  It exports a special named function, 
+            Initialize(), which writes any hooks and patches needed by the plugin, and returns a ...
             -   Submodule interface, as laid out in Submodule/Interface.h.  This interface is how the loader communicates
                 with the submodule, to invoke next script commands or react to messages from obse and other plugins.
                 This interface might also be dispatched to other plugins, so that they can invoke the commands directly.
@@ -177,8 +177,8 @@ void OBSEMessageHandler(OBSEMessagingInterface::Message* msg)
 extern "C" bool _declspec(dllexport) OBSEPlugin_Query(const OBSEInterface* obse, PluginInfo* info)
 {
     // attach html-formatted log file to loader output handler
-    HTMLTarget* tgt = new HTMLTarget(obse->isEditor ? "Data\\obse\\plugins\\" SOLUTIONNAME "\\CS.log.html" 
-                                                    : "Data\\obse\\plugins\\" SOLUTIONNAME "\\Game.log.html");
+    HTMLTarget* tgt = (obse->isEditor) ? new HTMLTarget("Data\\obse\\plugins\\" SOLUTIONNAME "\\CS.log.html",SOLUTIONNAME " CS Log")
+                                       : new HTMLTarget("Data\\obse\\plugins\\" SOLUTIONNAME "\\Game.log.html",SOLUTIONNAME " Game Log");
     _gLogFile = tgt;
     gLog.AttachTarget(*_gLogFile);
      // load rules for loader output from INI
@@ -210,6 +210,22 @@ extern "C" bool _declspec(dllexport) OBSEPlugin_Query(const OBSEInterface* obse,
     else
     {
         _FATALERROR("Could not load ExportInjector.dll.  Check that this file is installed correctly.");
+        return false;
+    }
+
+    // load COEF Components library, which defines classes and methods that multiple plugins can use to implement a features that
+    // would otherwise be limited to one plugin.  Like ExportInjector, this library must be loaded before the submodule.
+    // there are distinct Game and CS versions of the library; the appropriate one must be loaded for the current executable.
+    _MESSAGE("Loading COEF Components ...");
+    const char* componentlib = obse->isEditor ? "Data\\obse\\Plugins\\COEF\\Components\\Components.CS.dll" 
+                                              : "Data\\obse\\Plugins\\COEF\\Components\\Components.Game.dll" ;
+    if (LoadLibrary(componentlib))
+    {
+        _DMESSAGE("COEF components loaded successfully");
+    }
+    else
+    {
+        _FATALERROR("Could not load Components.dll.  Check that this file is installed correctly.");
         return false;
     }
 

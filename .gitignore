@@ -3,6 +3,7 @@
 *.suo
 *.lib
 *.vcproj*
+*.aps
 Debug*/
 Release*/
 
