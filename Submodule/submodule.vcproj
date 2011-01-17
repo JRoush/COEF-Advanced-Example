@@ -55,6 +55,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="../;&quot;$(COEFPATH)&quot;;&quot;$(OBSEPATH)\obse&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -130,6 +131,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="../;&quot;$(COEFPATH)&quot;;&quot;$(OBSEPATH)\obse&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -206,6 +208,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="../;&quot;$(COEFPATH)&quot;;&quot;$(OBSEPATH)\obse&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -281,6 +284,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="../;&quot;$(COEFPATH)&quot;;&quot;$(OBSEPATH)\obse&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"

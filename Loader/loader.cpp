@@ -132,7 +132,6 @@ void GeneralMessageHandler(OBSEMessagingInterface::Message* msg)
 }
 void OBSEMessageHandler(OBSEMessagingInterface::Message* msg)
 {// registered during plugin load; recieves (event) messages from OBSE itself
-    int x = 0;
 	switch (msg->type)
 	{
 	case OBSEMessagingInterface::kMessage_ExitGame:
