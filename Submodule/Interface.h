@@ -10,7 +10,7 @@ class SubmoduleInterface
 {
 public:
     // commands
-    virtual /*00*/ void             COEFTest(TESObjectREFR* thisObj, const char* argA, const char* argB, const char* argC);
+    virtual /*00*/ void             ListMyForms();
     // internals
     virtual /*04*/ const char*      Description();  // prints & returns a short description of this plugin
 };
