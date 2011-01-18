@@ -1,0 +1,56 @@
+;; This example script illustrates the fact that, because it is implemented exactly like other form classes,
+;; MyForm can be used with a broad variety of existing script functions from OBSE and the vanilla game.
+scn MyFormExampleScript
+
+ref myform
+
+begin Function {myform}
+	
+	;; List (in output log) all MyForms in data handler
+	ListMyForms
+	
+	;; Display info on one particular MyForm, supplied as an argument
+	;; Note that, for the properties defined by the BaseFormComponent classes (TESFullName, TESIcon, etc.),
+	;; the standard OBSE functions can be used to manipulate the form (GetName, SetTexturePath, etc.).  This
+	;; includes standard functions for working with forms in general, e.g. GetFormIDString
+	print "MyForm '"+$myform+"' ("+(GetFormIDString myform)+")"
+	print "  QuestItem = "+$(IsQuestItem myform)
+	print "  Icon = '"+(GetTexturePath myform)+"'"
+	print "  Desc = '"+(GetDescription myform)+"'"
+	print "  Weight = "+$(GetWeight myform)
+	print "  Gold Value = "+$(GetGoldValue myform)
+	print "  ExtraData = "+$(GetMyFormExtraData myform)	; new script function introduced by this plugin
+	
+	;; CloneForm works too - here we clone a new copy and set it's properties
+	;; The cloned form will end up in the data handler with a 'FF******' formID, just
+	;; like a clone of an ordinary form.
+	print "  --------"
+	print "  Cloning MyForm ..."
+	let myform := CloneForm myform	
+	print "Cloned MyForm '"+$myform+"' ("+(GetFormIDString myform)+")"
+	print "  Setting Quest Item ..."
+	SetQuestItem 0, myform
+	print "  Setting Icon ..."
+	SetTexturePath "RandomTexture.dds", myform
+	print "  Setting Desc ..."
+	SetDescription "New description", myform
+	print "  Setting Weight ..."
+	SetWeight 99.9, myform
+	print "  Setting Gold Value ..."
+	SetGoldValue 1233, myform
+	print "  Setting ExtraData ..."	
+	SetMyFormExtraData 18, myform	; new script function introduced by this plugin
+	
+	;; Display the cloned items properties
+	print "  --------"	
+	print "  QuestItem = "+$(IsQuestItem myform)
+	print "  Icon = '"+(GetTexturePath myform)+"'"
+	print "  Desc = '"+(GetDescription myform)+"'"
+	print "  Weight = "+$(GetWeight myform)
+	print "  Gold Value = "+$(GetGoldValue myform)
+	print "  ExtraData = "+$(GetMyFormExtraData myform)	; new script function introduced by this plugin
+	SetFunctionValue myform
+
+	;; Experiment with other functions - nearly anything that works with vanilla forms should work with the new form class
+end
+
