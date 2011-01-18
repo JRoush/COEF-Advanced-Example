@@ -33,7 +33,7 @@ bool MyForm::LoadForm(TESFile& file)
 
     */
 
-    file.InitializeFormFromRecord(*this);
+    file.InitializeFormFromRecord(*this); // initialize formID, formFlags, etc. from record header
 
     char buffer[0x200];
     for(UInt32 chunktype = file.GetChunkType(); chunktype; chunktype = file.GetNextChunk() ? file.GetChunkType() : 0)
@@ -150,7 +150,7 @@ bool MyForm::CompareTo(TESForm& compareTo)
     */
 
     MyForm* source = dynamic_cast<MyForm*>(&compareTo);
-    if (!source) true;    // source has wrong polymorphic type
+    if (!source) return true;    // source has wrong polymorphic type
 
     if (CompareGenericComponentsTo(compareTo)) return true; // compare all BaseFormComponent properties
     if (extraData != source->extraData) return true;    // compare extraData, which is specific this form class
