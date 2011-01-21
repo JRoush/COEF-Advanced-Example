@@ -16,6 +16,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Submodule", "Submodule\Subm
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B2A05F9E-E879-43AD-B383-6AADEB069FA3}"
 	ProjectSection(SolutionItems) = preProject
+		Example Script.txt = Example Script.txt
 		Readme.txt = Readme.txt
 	EndProjectSection
 EndProject
