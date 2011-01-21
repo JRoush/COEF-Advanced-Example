@@ -234,17 +234,10 @@ void MyForm::CleanupDialog(HWND dialog)
 // bitmask of virtual methods that need to be manually copied from vanilla vtbls (see notes in Constructor)
 #ifdef OBLIVION
     const UInt32 TESForm_NoUseMethods[2] = { 0x86048400, 0x001E1FC7 };
-    const UInt32 BaseFormComponent_NoUseMethods[1] = {0x00};
 #else
-    const UInt32 TESForm_NoUseMethods[3] = { 0x090800D0, 0xDF783F8F, 0x00000105 };
-    const UInt32 BaseFormComponent_NoUseMethods[1] = {0xD0};
+    const UInt32 TESForm_NoUseMethods[3] = { 0x090800D0, 0x0F783F8F, 0x00000105 };
 #endif
 memaddr TESForm_vtbl                (0x00A3BE3C,0x0093DA0C);
-memaddr TESFullName_vtbl            (0x00A322A0,0x00938118);
-memaddr TESDescription_vtbl         (0x00A3B938,0x0093D00C);
-memaddr TESIcon_vtbl                (0x00A320A4,0x0093C9DC);
-memaddr TESValueForm_vtbl           (0x00A3C680,0x0093F4F4);
-memaddr TESWeightForm_vtbl          (0x00A3C6A0,0x0093F588);
 
 // Constructor
 MyForm::MyForm()
@@ -273,12 +266,10 @@ MyForm::MyForm()
             To address this, the COEF vtbl must be patched at run time by copying the addresses of
         the NOUSE_ methods from the vanilla vtbl to fill in the blanks.  It needs to be done only
         once per new form class, the first time that class' constructor is called.
-            A polymorphic class has one vtbl per base class.  In this example, that means six 
-        vtbls.
     */
     if (static bool runonce = true)
     {
-        // patch up TESForm vtbl, including it's BaseFormComponent section        
+        // patch up TESForm vtbl    
         memaddr thisvtbl = (UInt32)memaddr::GetObjectVtbl(this);
         _MESSAGE("Patching MyForm TESForm vtbl @ <%p>",thisvtbl);
         gLog.Indent();
@@ -287,32 +278,6 @@ MyForm::MyForm()
             if ((TESForm_NoUseMethods[i/0x20] >> (i%0x20)) & 1)
             {
                 thisvtbl.SetVtblEntry(i*4,TESForm_vtbl.GetVtblEntry(i*4));
-                _VMESSAGE("Patched Offset 0x%04X",i*4);
-            }
-        }
-        gLog.Outdent();
-
-        // patch up component vtbls
-        memaddr nameVtbl = (UInt32)memaddr::GetObjectVtbl(dynamic_cast<TESFullName*>(this));
-        memaddr descVtbl = (UInt32)memaddr::GetObjectVtbl(dynamic_cast<TESDescription*>(this));
-        memaddr iconVtbl = (UInt32)memaddr::GetObjectVtbl(dynamic_cast<TESIcon*>(this));
-        memaddr valueVtbl = (UInt32)memaddr::GetObjectVtbl(dynamic_cast<TESValueForm*>(this));
-        memaddr weightVtbl = (UInt32)memaddr::GetObjectVtbl(dynamic_cast<TESWeightForm*>(this));
-        _MESSAGE("Patching MyForm TESFullName vtbl @ <%p> ...",nameVtbl);        
-        _MESSAGE("Patching MyForm TESDescription vtbl @ <%p> ...",descVtbl);        
-        _MESSAGE("Patching MyForm TESIcon vtbl @ <%p> ...",iconVtbl);
-        _MESSAGE("Patching MyForm TESValueForm vtbl @ <%p> ...",valueVtbl);
-        _MESSAGE("Patching MyForm TESWeightForm vtbl @ <%p> ...",weightVtbl);
-        gLog.Indent();
-        for (int i = 0; i < sizeof(BaseFormComponent_NoUseMethods)*0x8; i++)
-        {
-            if ((BaseFormComponent_NoUseMethods[i/0x20] >> (i%0x20)) & 1)
-            {
-                nameVtbl.SetVtblEntry(i*4,TESFullName_vtbl.GetVtblEntry(i*4));
-                descVtbl.SetVtblEntry(i*4,TESDescription_vtbl.GetVtblEntry(i*4));
-                iconVtbl.SetVtblEntry(i*4,TESIcon_vtbl.GetVtblEntry(i*4));
-                valueVtbl.SetVtblEntry(i*4,TESValueForm_vtbl.GetVtblEntry(i*4));
-                weightVtbl.SetVtblEntry(i*4,TESWeightForm_vtbl.GetVtblEntry(i*4));
                 _VMESSAGE("Patched Offset 0x%04X",i*4);
             }
         }
