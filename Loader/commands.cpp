@@ -98,11 +98,13 @@ void CSEPrintCallback(const char* message, const char* prefix)
     Called whenever output is provided to CSE console, if present
     Commands recognized by this parser take the form 'solutionName commandName [args...]'
 */
+    char buffer[0x200];
+    strcpy_s(buffer,sizeof(buffer),message);
     char* context = 0;
-    if (!message || _stricmp(strtok_s(const_cast<char*>(message)," \t",&context),SOLUTIONNAME) != 0) return; // output is not a command targeted to this plugin
-    _DMESSAGE("%s %s",prefix,message);
-    
+    if (!message || _stricmp(strtok_s(const_cast<char*>(buffer)," \t",&context),SOLUTIONNAME) != 0) return; // output is not a command targeted to this plugin
     const char* command = strtok_s(0," \t",&context);   // extract command name using strtok()
+    _DMESSAGE("%s %s %s",prefix,buffer,command);
+    if (!command) return;    
     const char* argA = strtok_s(0," \t",&context);  // extract 1st arg, if present
     const char* argB = strtok_s(0," \t",&context);  // extract 2nd arg, if present
     const char* argC = strtok_s(0," \t",&context);  // extract 3rd arg, if present
