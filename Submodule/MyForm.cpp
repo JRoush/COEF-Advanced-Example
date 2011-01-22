@@ -135,7 +135,7 @@ void MyForm::CopyFrom(TESForm& form)
     MyForm* source = dynamic_cast<MyForm*>(&form);
     if (!source) return;    // source has wrong polymorphic type
 
-    CopyGenericComponentsFrom(form); // copy all BaseFormComponent properties
+    CopyAllComponentsFrom(form); // copy all BaseFormComponent properties
     extraData = source->extraData; // copy extraData, which is specific this form class
 
 }
@@ -152,7 +152,7 @@ bool MyForm::CompareTo(TESForm& compareTo)
     MyForm* source = dynamic_cast<MyForm*>(&compareTo);
     if (!source) return true;    // source has wrong polymorphic type
 
-    if (CompareGenericComponentsTo(compareTo)) return true; // compare all BaseFormComponent properties
+    if (CompareAllComponentsTo(compareTo)) return true; // compare all BaseFormComponent properties
     if (extraData != source->extraData) return true;    // compare extraData, which is specific this form class
 
     return false; // forms are identical
