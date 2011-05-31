@@ -8,14 +8,13 @@
 #include "obse/CommandTable.h"
 #include "obse/ParamInfos.h"
 
-
-// NOTE: The linking information available to the submodule that allows it to use all members and 
-// methods is not part of the Loader project.  Use ONLY virtual methods, ordinary member variables, 
-// and static constants from the files below.
-// NOTE: Some game classes defined by COEF will conflict with the OBSE classes of the same name.
-// Be sure that only one or the other is included in this file.
-#include "API/TESForms/TESObjectREFR.h"
-#include "Submodule/MyForm.h"
+// Include the OBSE version of TESObjectREFR for use in processing arguments
+// We cannot use the COEF version because 
+// (1) the loader doesn't import it's member functions
+// (2) it would collide with the OBSE version, which is forcibly included by PluginAPI.h
+// The second issue will be fixed in a future version of OBSE, so we may be 
+// able to use COEF classes here in a limited capacity at some later date.
+#include "obse/GameObjects.h"   
 
 /*--------------------------------------------------------------------------------------------*/
 // Ported from CommandTable.cpp so we don't have to include the entire file
@@ -42,19 +41,13 @@ bool Cmd_GetMyFormExtraData_Execute(COMMAND_ARGS)
 {
     /*
         Execution function for GetMyFormExtraData
-        See notes in Cmd_DumpAllMyForms_Execute for an overview of the 'general' way to write execution functions
-        Because this function is so simple - it can be written using only ordinary member variables on pre-existing
-        MyForm objects - there is no need to use the Submodule Entry to pass the execution into the submodule dll.
     */
     *result = 0; // initialize result
     TESForm* form = 0;  // declare & initialize argument
-    ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form);  // extract argument from script environment
-    if (form && (thisObj = dynamic_cast<TESObjectREFR*>(form))) form = 0;   // check if argument is actually a reference
+    g_scriptIntfc->ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &form);  // extract argument from script environment
+    if (form && (thisObj = OBLIVION_CAST(form,TESForm,TESObjectREFR))) form = 0;   // check if argument is actually a reference
     if (!form && thisObj) form = thisObj->GetBaseForm(); // if only a reference is provided, use it's base form
-    MyForm* myform = dynamic_cast<MyForm*>(form); // typecast to MyForm
-    if (!myform) return true; // argument was not a MyForm object
-    _MESSAGE("GetMyFormExtraData ( %08X, %i )", myform ? myform->formID : 0, myform->extraData);
-    *result = myform->extraData; // return the extraData field from the argument
+    *result = (SInt32)g_submoduleInfc->GetMyFormExtraData(form); // use interface function to execute command
     return true;
 }
 DEFINE_COMMAND_PLUGIN(GetMyFormExtraData, "Gets the 'extraData' field of a MyForm object", 0, 1, kParams_OneOptionalInventoryObject)
@@ -62,20 +55,14 @@ bool Cmd_SetMyFormExtraData_Execute(COMMAND_ARGS)
 {
     /*
         Execution function for SetMyFormExtraData
-        See notes in Cmd_DumpAllMyForms_Execute for an overview of the 'general' way to write execution functions
-        Because this function is so simple - it can be written using only ordinary member variables on pre-existing
-        MyForm objects - there is no need to use the Submodule Entry to pass the execution into the submodule dll.
     */
      *result = 0; // initialize result
     TESForm* form = 0;  // declare & initialize arguments
     UInt32 extraData = 0;
-    ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &extraData, &form);  // extract args from script environment
-    if (form && (thisObj = dynamic_cast<TESObjectREFR*>(form))) form = 0;   // check if argument is actually a reference
-    if (!form && thisObj) form = thisObj->GetBaseForm();    // if only a reference is provided, use it's base form
-    MyForm* myform = dynamic_cast<MyForm*>(form);   // typecast to MyForm
-    if (!myform) return true; // argument was not a MyForm object
-    _MESSAGE("SetMyFormExtraData ( %08X, %i -> %i )", myform ? myform->formID : 0, myform->extraData, extraData);
-    myform->extraData = extraData;  // set the extraData field on the argument
+    g_scriptIntfc->ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &extraData, &form);  // extract args from script environment
+    if (form && (thisObj = OBLIVION_CAST(form,TESForm,TESObjectREFR))) form = 0; // check if argument is actually a reference
+    if (!form && thisObj) form = thisObj->GetBaseForm(); // if only a reference is provided, use it's base form
+    g_submoduleInfc->SetMyFormExtraData(form,extraData); // use interface function to execute command
     return true;
 }
 DEFINE_COMMAND_PLUGIN(SetMyFormExtraData, "Sets the 'extraData' field of a MyForm object", 0, 2, kParams_OneInt_OneOptionalInventoryObject)

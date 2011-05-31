@@ -17,6 +17,20 @@ void SubmoduleInterface::ListMyForms()
     }
     gLog.Outdent();
 }
+void SubmoduleInterface::SetMyFormExtraData(TESForm* form, UInt32 extraData)
+{
+    MyForm* myform = dynamic_cast<MyForm*>(form);   // typecast to MyForm
+    if (!myform) return; // argument was not a MyForm object
+    _MESSAGE("SetMyFormExtraData ( %08X, %i -> %i )", myform ? myform->formID : 0, myform->extraData, extraData);
+    myform->extraData = extraData;  // set the extraData field on the argument
+}
+UInt32 SubmoduleInterface::GetMyFormExtraData(TESForm* form)
+{
+    MyForm* myform = dynamic_cast<MyForm*>(form);   // typecast to MyForm
+    if (!myform) return 0; // argument was not a MyForm object
+    _MESSAGE("GetMyFormExtraData ( %08X, %i )", myform ? myform->formID : 0, myform->extraData);
+    return myform->extraData; // return the extraData field from the argument
+}
 const char* SubmoduleInterface::Description()
 {
     static char buffer[0x100];
