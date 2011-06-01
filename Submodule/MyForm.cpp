@@ -267,7 +267,8 @@ MyForm::MyForm()
         the NOUSE_ methods from the vanilla vtbl to fill in the blanks.  It needs to be done only
         once per new form class, the first time that class' constructor is called.
     */
-    if (static bool runonce = true)
+    static bool runonce = true;
+    if (runonce)
     {
         // patch up TESForm vtbl    
         memaddr thisvtbl = (UInt32)memaddr::GetObjectVtbl(this);
