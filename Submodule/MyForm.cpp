@@ -296,6 +296,21 @@ TESForm* MyForm::CreateMyForm() { return new MyForm; } // method used by Extende
 #ifndef OBLIVION
 UInt32 MyForm::kMenuIdentifier = 0xCC00;    // unique identifier for new menu item (see InitializeMyForm())
 HWND  MyForm::dialogHandle = 0; // handle of open dialog window, if any
+void MyForm_AddMenuItem()
+{
+    // insert new item into CS main menu
+    HMENU menu = GetMenu(TESDialog::csHandle); // get main CS menu handle
+    menu = GetSubMenu(menu,3);              // get 'World' submenu handle
+    MENUITEMINFO iteminfo;      
+    iteminfo.cbSize = sizeof(iteminfo);        
+    iteminfo.fMask = MIIM_ID | MIIM_FTYPE | MIIM_STRING;
+    iteminfo.fType = MFT_STRING;
+    char menulabel[] = SOLUTIONNAME " " MYFORM_CLASSNAME " ...";
+    iteminfo.dwTypeData = menulabel;
+    iteminfo.cch = sizeof(menulabel);
+    iteminfo.wID = MyForm::kMenuIdentifier;
+    InsertMenuItem(menu,0,true,&iteminfo); // Insert new entry at top of submenu
+}
 LRESULT MyForm_CSMenuHook(WPARAM wparam, LPARAM lparam)
 {
     /*
@@ -350,24 +365,22 @@ void MyForm::InitializeMyForm()
     // generate a (hopefully) unqiue menu identifier from form type
     kMenuIdentifier += extendedForm.FormType();
 
-    // insert new item into CS main menu
-    HMENU menu = GetMenu(TESDialog::csHandle); // get main CS menu handle
-    menu = GetSubMenu(menu,3);              // get 'World' submenu handle
-    MENUITEMINFO iteminfo;      
-    iteminfo.cbSize = sizeof(iteminfo);        
-    iteminfo.fMask = MIIM_ID | MIIM_FTYPE | MIIM_STRING;
-    iteminfo.fType = MFT_STRING;
-    char menulabel[] = SOLUTIONNAME " " MYFORM_CLASSNAME " ...";
-    iteminfo.dwTypeData = menulabel;
-    iteminfo.cch = sizeof(menulabel);
-    iteminfo.wID = kMenuIdentifier;
-    InsertMenuItem(menu,0,true,&iteminfo); // Insert new entry at top of submenu
+    // attempt to add new menu item to the CS
+    // this may fail for newer (v21+) versions of OBSE that load plugins before 
+    // the CS main window has been initialized.
+    MyForm_AddMenuItem();
 
-    // register event handler with the EventManager COEF component
-    // the CSMainWindow_WMCommand occurs when WM_COMMAND messages are sent to the main CS window
+    // register CSWindows::InitializeWindows event handler with the EventManager COEF component
+    // this event occurs during startup, after the CS has initialized the main MDI window and menu
+    // items cannot be added to the main CS menu until this event has occurred
+    // older versions of OBSE (<= v20) load plugins *after* this event, meaning it will never be trapped
+    EventManager::CSWindows::InitializeWindows.RegisterCallback(&MyForm_AddMenuItem);
+
+    // register CSWindows::MainW_WMCommand event handler with the EventManager COEF component
+    // this event occurs when WM_COMMAND messages are sent to the main CS window
     // This includes menu selections by the user, so this event handler will be able to
     // determine when the user clicks on the newly added menu item.
-    EventManager::RegisterEventCallback(EventManager::CSMainWindow_WMCommand,&MyForm_CSMenuHook);
+    EventManager::CSWindows::MainW_WMCommand.RegisterCallback(&MyForm_CSMenuHook);
 
     #endif
 }
